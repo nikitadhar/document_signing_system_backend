@@ -61,14 +61,9 @@ export const userSignup = async (req, res, next) => {
     // ✅ set cookie (NO domain for localhost)
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:
-        process.env.NODE_ENV === "production"
-          ? "none"
-          : "lax",
-      signed: true,
+      secure: true,
+      sameSite: "none",
       expires,
-      path: "/",
     });
     return res.status(201).json({
       message: "User created successfully",
@@ -120,14 +115,9 @@ export const userLogin = async (
     expires.setDate(expires.getDate() + 7);
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:
-        process.env.NODE_ENV === "production"
-          ? "none"
-          : "lax",
-      signed: true,
+      secure: true,
+      sameSite: "none",
       expires,
-      path: "/",
     });
 
     return res
