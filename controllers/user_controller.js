@@ -42,7 +42,7 @@ export const userSignup = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
-
+console.log("user..",user)
     await user.save();
  // create token and store cookie
     res.clearCookie(COOKIE_NAME, {
@@ -72,6 +72,7 @@ export const userSignup = async (req, res, next) => {
       message: "User created successfully",
       name: user.name,
       email: user.email,
+      userId:user._id
     });
 
   } catch (error) {
@@ -149,7 +150,7 @@ export const verifyUser = async (
     }
     return res
       .status(200)
-      .json({ message: "OK", name: user.name, email: user.email });
+      .json({ message: "OK", name: user.name, email: user.email,userId:user.id });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });

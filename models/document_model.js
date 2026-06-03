@@ -9,7 +9,18 @@ const documentSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  originalname: {
+    type: String
+  },
 
+  signedPdf: {
+    type: String,
+    default: null,
+  },
+  signatureImage: {
+    type: String,
+    default: null,
+  },
   status: {
     type: String,
     enum: ["Pending", "Signed"],

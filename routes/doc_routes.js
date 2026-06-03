@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { upload } from "../config/multer_config.js";
-import { uploadDocument } from "../controllers/document_controller.js";
+import { downloadDocument, saveSignature, uploadDocument,getMyDocuments, getDocumentStats } from "../controllers/document_controller.js";
 import { verifyToken } from "../utils/token_manager.js";
 const docRoutes = Router();
-docRoutes.post(
-  "/upload",
-  verifyToken,
-  upload.single("pdf"),
-  uploadDocument
-);
+docRoutes.post("/upload/:userId",verifyToken,upload.single("pdf"),uploadDocument);
+docRoutes.patch("/signature/:id",verifyToken,saveSignature);
+docRoutes.get("/download/:id",verifyToken,downloadDocument);
+docRoutes.get("/my-documents",verifyToken,getMyDocuments);
+docRoutes.get("/documents_counts",verifyToken,getDocumentStats);
 export default docRoutes;
