@@ -42,9 +42,8 @@ export const userSignup = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
-console.log("user..",user)
     await user.save();
- // create token and store cookie
+    // create token and store cookie
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
       domain: "localhost",
@@ -60,19 +59,22 @@ console.log("user..",user)
     expires.setDate(expires.getDate() + 7);
 
     // ✅ set cookie (NO domain for localhost)
-     res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: "localhost",
-      expires,
+    res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production"
+          ? "none"
+          : "lax",
       signed: true,
+      expires,
+      path: "/",
     });
-
     return res.status(201).json({
       message: "User created successfully",
       name: user.name,
       email: user.email,
-      userId:user._id
+      userId: user._id
     });
 
   } catch (error) {
@@ -103,7 +105,7 @@ export const userLogin = async (
       return res.status(403).send("Incorrect Password");
     }
 
-   // create token and store cookie
+    // create token and store cookie
 
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
@@ -116,17 +118,21 @@ export const userLogin = async (
     const token = createToken(user._id.toString(), user.email, "7d");
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
- res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: "localhost",
-      expires,
+    res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production"
+          ? "none"
+          : "lax",
       signed: true,
+      expires,
+      path: "/",
     });
 
     return res
       .status(200)
-      .json({ message: "OK", name: user.name, email: user.email,authToken:token });
+      .json({ message: "OK", name: user.name, email: user.email, authToken: token });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "ERROR", cause: error.message });
@@ -150,13 +156,13 @@ export const verifyUser = async (
     }
     return res
       .status(200)
-      .json({ message: "OK", name: user.name, email: user.email,userId:user.id });
+      .json({ message: "OK", name: user.name, email: user.email, userId: user.id });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
   }
 };
- // Forget password flow
+// Forget password flow
 export const forgetPassword = async (req, res, next) => {
   try {
     const { email, password } = req.body;
