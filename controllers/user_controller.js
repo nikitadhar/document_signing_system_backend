@@ -59,11 +59,11 @@ export const userSignup = async (req, res, next) => {
     expires.setDate(expires.getDate() + 7);
 
     // ✅ set cookie (NO domain for localhost)
-    res.cookie(COOKIE_NAME, token, {
+ res.cookie(COOKIE_NAME, token, {
   httpOnly: true,
-  secure: true,      // production HTTPS
-  sameSite: "none",  // if frontend and backend are on different domains
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  secure: true,
+  sameSite: "none",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
   path: "/",
 });
     return res.status(201).json({
@@ -114,11 +114,11 @@ export const userLogin = async (
     const token = createToken(user._id.toString(), user.email, "7d");
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
-    res.cookie(COOKIE_NAME, token, {
+   res.cookie(COOKIE_NAME, token, {
   httpOnly: true,
-  secure: true,      // production HTTPS
-  sameSite: "none",  // if frontend and backend are on different domains
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  secure: true,
+  sameSite: "none",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
   path: "/",
 });
 
