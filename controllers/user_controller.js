@@ -46,7 +46,7 @@ export const userSignup = async (req, res, next) => {
     // create token and store cookie
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      domain: "localhost",
+      // domain: "localhost",
       signed: true,
       path: "/",
     });
@@ -59,12 +59,13 @@ export const userSignup = async (req, res, next) => {
     expires.setDate(expires.getDate() + 7);
 
     // ✅ set cookie (NO domain for localhost)
- res.cookie(COOKIE_NAME, token, {
+res.cookie(COOKIE_NAME, token, {
   httpOnly: true,
   secure: true,
   sameSite: "none",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
   path: "/",
+  signed: true,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 });
     return res.status(201).json({
       message: "User created successfully",
@@ -105,7 +106,7 @@ export const userLogin = async (
 
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      domain: "localhost",
+      // domain: "localhost",
       signed: true,
       path: "/",
     });
@@ -119,6 +120,7 @@ export const userLogin = async (
   secure: true,
   sameSite: "none",
   maxAge: 7 * 24 * 60 * 60 * 1000,
+  signed: true,
   path: "/",
 });
 
