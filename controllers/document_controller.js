@@ -113,7 +113,6 @@ export const saveSignature = async (
       message: "Document not found",
     });
   }
-console.log("document...",document)
   const pdfData =
     document.signedPdf || document.fileUrl;
 

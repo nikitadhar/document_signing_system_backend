@@ -15,7 +15,7 @@ const documentSchema = new mongoose.Schema({
   },
 
   signedPdf: {
-    type: String,
+    type: Buffer,
     default: null,
   },
   signatureImage: {
