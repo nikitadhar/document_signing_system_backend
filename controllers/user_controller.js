@@ -44,13 +44,12 @@ export const userSignup = async (req, res, next) => {
     });
     await user.save();
     // create token and store cookie
-     res.clearCookie(COOKIE_NAME, {
+    res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-     domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
+      secure: true,
+      sameSite: "none",
       signed: true,
       path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
 
 
@@ -62,13 +61,12 @@ export const userSignup = async (req, res, next) => {
 
     // ✅ set cookie (NO domain for localhost)
     res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
-      expires,
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
       signed: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
+      path: "/",
+      expires,
     });
     return res.status(201).json({
       message: "User created successfully",
@@ -107,27 +105,24 @@ export const userLogin = async (
 
     // create token and store cookie
 
-   res.clearCookie(COOKIE_NAME, {
+    res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
+      secure: true,
+      sameSite: "none",
       signed: true,
       path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
-
 
     const token = createToken(user._id.toString(), user.email, "7d");
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
     res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
-      expires,
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
       signed: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
+      path: "/",
+      expires,
     });
 
     return res
@@ -215,15 +210,13 @@ export const userLogout = async (
       return res.status(401).send("Permissions didn't match");
     }
 
-     res.clearCookie(COOKIE_NAME, {
+    res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
+      secure: true,
+      sameSite: "none",
       signed: true,
       path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
-
     return res
       .status(200)
       .json({ message: "OK", name: user.name, email: user.email });
