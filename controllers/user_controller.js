@@ -44,11 +44,13 @@ export const userSignup = async (req, res, next) => {
     });
     await user.save();
     // create token and store cookie
-    res.clearCookie(COOKIE_NAME, {
+     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      // domain: "localhost",
+     domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
       signed: true,
       path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
 
 
@@ -60,15 +62,13 @@ export const userSignup = async (req, res, next) => {
 
     // ✅ set cookie (NO domain for localhost)
     res.cookie(COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:
-        process.env.NODE_ENV === "production"
-          ? "none"
-          : "lax",
-      signed: true,
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
+      expires,
+      httpOnly: true,
+      signed: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
     return res.status(201).json({
       message: "User created successfully",
@@ -107,11 +107,13 @@ export const userLogin = async (
 
     // create token and store cookie
 
-    res.clearCookie(COOKIE_NAME, {
+   res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      // domain: "localhost",
+      domain: "localhost",
       signed: true,
       path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
 
 
@@ -119,15 +121,13 @@ export const userLogin = async (
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
     res.cookie(COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:
-        process.env.NODE_ENV === "production"
-          ? "none"
-          : "lax",
-      signed: true,
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
+      expires,
+      httpOnly: true,
+      signed: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
 
     return res
@@ -215,12 +215,13 @@ export const userLogout = async (
       return res.status(401).send("Permissions didn't match");
     }
 
-    res.clearCookie(COOKIE_NAME, {
+     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      // domain: "localhost",
-      secure:true,
+      domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
       signed: true,
       path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     });
 
     return res
