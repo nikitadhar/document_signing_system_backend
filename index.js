@@ -8,7 +8,10 @@ import { connectToDatabase } from "./db/connection.js";
 const app=express();
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "http://localhost:3000",
+      "https://creative-sunburst-161669.netlify.app/",
+    ],
     credentials: true,
   })
 );
