@@ -15,7 +15,7 @@ app.use(
 app.set("trust proxy", true);
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use('/uploads', express.static('uploads'));
+// app.use('/uploads', express.static('uploads'));
 app.use("/api/v1", appRouter);
 // ✅ Start server
 const PORT = process.env.PORT || 5000;

@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const documentSchema = new mongoose.Schema({
   title: String,
-  fileUrl: String,
+  fileUrl: Buffer,
+  mimeType: String,
 
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,

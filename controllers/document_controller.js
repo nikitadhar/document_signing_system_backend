@@ -13,8 +13,9 @@ export const uploadDocument = async (req, res) => {
 
     const doc = await Document.create({
       title: req.body.title,
-      fileUrl: req.file.path, // save uploaded file path
-      originalname:req.file.originalname,
+      fileUrl: req.file.buffer, // save uploaded file path
+      originalname: req.file.originalname,
+      mimeType: req.file.mimetype,
       uploadedBy: req.params.userId,
     });
     return res.status(201).json({
@@ -36,16 +37,16 @@ export const saveSignature = async (
   req,
   res
 ) => {
-  const documentId =new mongoose.Types.ObjectId(req.params.id);
+  const documentId = new mongoose.Types.ObjectId(req.params.id);
   const document =
-  await Document.findByIdAndUpdate(
-    documentId,
-    {
-      signatureImage:
-      req.body.signature,
-    },
-    { new: true }
-  );
+    await Document.findByIdAndUpdate(
+      documentId,
+      {
+        signatureImage:
+          req.body.signature,
+      },
+      { new: true }
+    );
   const pdfBytes =
     fs.readFileSync(
       document.fileUrl
@@ -59,11 +60,6 @@ export const saveSignature = async (
     pdfDoc.getPages();
   const firstPage =
     pages[0];
-
-  // const pngImage =
-  //   await pdfDoc.embedPng(
-  //     document.signatureImage
-  //   );
 
   firstPage.drawText(
     document.signatureImage,
@@ -95,7 +91,7 @@ export const saveSignature = async (
 
   res.json(document);
 };
-  
+
 // Get Documents by user Id
 export const getMyDocuments = async (
   req,
@@ -121,26 +117,37 @@ export const getMyDocuments = async (
   }
 };
 // Downoad Document
-  export const downloadDocument =
-  async (req, res) => {
-    const document =
-      await Document.findById(
-        req.params.id
-      );
+export const downloadDocument = async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
 
-    return res.download(
-      document.signedPdf
-    );
-  };
-  // GET COUNT OF DOCUMENT
+    if (!document) {
+      return res.status(404).json({
+        message: "Document not found",
+      });
+    }
 
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${document.originalname}"`,
+    });
+
+    return res.send(document.signedPdf);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Download failed",
+      cause: error.message,
+    });
+  }
+};
+// GET COUNT OF DOCUMENT
 export const getDocumentStats = async (
   req,
   res
 ) => {
   try {
     const userId = res.locals.jwtData.id;
-const objectUserId = new mongoose.Types.ObjectId(userId);
+    const objectUserId = new mongoose.Types.ObjectId(userId);
     const [totalDocuments, statusCounts] =
       await Promise.all([
         Document.countDocuments({
