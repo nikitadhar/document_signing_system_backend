@@ -46,7 +46,7 @@ export const userSignup = async (req, res, next) => {
     // create token and store cookie
      res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-     domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
+     domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
       signed: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
@@ -63,7 +63,7 @@ export const userSignup = async (req, res, next) => {
     // ✅ set cookie (NO domain for localhost)
     res.cookie(COOKIE_NAME, token, {
       path: "/",
-      domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
+      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
       expires,
       httpOnly: true,
       signed: true,
@@ -109,7 +109,7 @@ export const userLogin = async (
 
    res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      domain: "localhost",
+      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
       signed: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
@@ -122,7 +122,7 @@ export const userLogin = async (
     expires.setDate(expires.getDate() + 7);
     res.cookie(COOKIE_NAME, token, {
       path: "/",
-      domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
+      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
       expires,
       httpOnly: true,
       signed: true,
@@ -217,7 +217,7 @@ export const userLogout = async (
 
      res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
-      domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost",
+      domain: process.env.NODE_ENV === "production" ? "https://creative-sunburst-161669.netlify.app" : "localhost",
       signed: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
