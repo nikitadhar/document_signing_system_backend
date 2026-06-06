@@ -8,7 +8,7 @@ import { connectToDatabase } from "./db/connection.js";
 const app=express();
 app.use(
   cors({
-    origin: "https://creative-sunburst-161669.netlify.app",
+    origin: true,
     credentials: true,
   })
 );
