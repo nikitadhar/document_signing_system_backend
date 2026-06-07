@@ -11,13 +11,30 @@ export const uploadDocument = async (req, res) => {
       });
     }
 
+    // Check file type
+    if (req.file.mimetype !== "application/pdf") {
+      return res.status(400).json({
+        message: "Only PDF files are allowed",
+      });
+    }
+
+    // Check file size (5 MB)
+    const maxSize = 5 * 1024 * 1024;
+
+    if (req.file.size > maxSize) {
+      return res.status(400).json({
+        message: "PDF size cannot exceed 5 MB",
+      });
+    }
+
     const doc = await Document.create({
       title: req.body.title,
-      fileUrl: req.file.buffer, // save uploaded file path
+      fileUrl: req.file.buffer,
       originalname: req.file.originalname,
       mimeType: req.file.mimetype,
       uploadedBy: req.params.userId,
     });
+
     return res.status(201).json({
       message: "Document uploaded successfully",
       document: doc,
