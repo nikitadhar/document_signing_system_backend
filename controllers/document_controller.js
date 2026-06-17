@@ -2,7 +2,8 @@ import Document from "../models/document_model.js";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
 import mongoose from "mongoose";
-
+import { PDFParse } from "pdf-parse";
+import OpenAI from "openai";
 export const uploadDocument = async (req, res) => {
   try {
     if (!req.file) {
@@ -26,6 +27,32 @@ export const uploadDocument = async (req, res) => {
         message: "PDF size cannot exceed 5 MB",
       });
     }
+    const client = new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: process.env.OPENROUTER_API_KEY,
+    });
+    const parser = new PDFParse({
+      data: req.file.buffer,
+    });
+
+    const result = await parser.getText();
+    const pdfText = result.text;
+    const response = await client.chat.completions.create({
+      model: "openrouter/free",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Summarize this PDF in 5 concise bullet points.",
+        },
+        {
+          role: "user",
+          content: pdfText.substring(0, 10000),
+        },
+      ],
+    });
+
+    const summary = response.choices[0].message.content;
 
     const doc = await Document.create({
       title: req.body.title,
@@ -33,6 +60,7 @@ export const uploadDocument = async (req, res) => {
       originalname: req.file.originalname,
       mimeType: req.file.mimetype,
       uploadedBy: req.params.userId,
+      aiSummary: summary,
     });
 
     return res.status(201).json({
@@ -79,7 +107,7 @@ export const saveSignature = async (
         size: 20,
       }
     );
-  
+
     const signedPdfBytes = await pdfDoc.save();
     document.signedPdf = Buffer.from(signedPdfBytes);
     document.status = "Signed";
@@ -97,32 +125,32 @@ export const saveSignature = async (
 }
 
 
-  // Get Documents by user Id
-  export const getMyDocuments = async (
-    req,
-    res
-  ) => {
-    try {
-      const userId = res.locals.jwtData.id;
+// Get Documents by user Id
+export const getMyDocuments = async (
+  req,
+  res
+) => {
+  try {
+    const userId = res.locals.jwtData.id;
 
-      const documents = await Document.find({
-        uploadedBy: userId,
-      }).sort({
-        createdAt: -1,
-      });
+    const documents = await Document.find({
+      uploadedBy: userId,
+    }).sort({
+      createdAt: -1,
+    });
 
-      return res.status(200).json({
-        success: true,
-        documents,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: error.message,
-      });
-    }
-  };
-  // VIEW DOCUMENT BY ITS ID
-  export const viewDocument = async (req, res) => {
+    return res.status(200).json({
+      success: true,
+      documents,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+// VIEW DOCUMENT BY ITS ID
+export const viewDocument = async (req, res) => {
   const document = await Document.findById(req.params.id);
 
   if (!document) {
@@ -140,73 +168,73 @@ export const saveSignature = async (
 
   return res.send(pdfData);
 };
-  // Downoad Document
-  export const downloadDocument = async (req, res) => {
-    try {
-      const document = await Document.findById(req.params.id);
+// Downoad Document
+export const downloadDocument = async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
 
-      if (!document) {
-        return res.status(404).json({
-          message: "Document not found",
-        });
-      }
-
-      res.set({
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${document.originalname}"`,
-      });
-
-      return res.send(document.signedPdf);
-    } catch (error) {
-      return res.status(500).json({
-        message: "Download failed",
-        cause: error.message,
+    if (!document) {
+      return res.status(404).json({
+        message: "Document not found",
       });
     }
-  };
-  // GET COUNT OF DOCUMENT
-  export const getDocumentStats = async (
-    req,
-    res
-  ) => {
-    try {
-      const userId = res.locals.jwtData.id;
-      const objectUserId = new mongoose.Types.ObjectId(userId);
-      const [totalDocuments, statusCounts] =
-        await Promise.all([
-          Document.countDocuments({
-            uploadedBy: userId,
-          }),
 
-          Document.aggregate([
-            {
-              $match: {
-                uploadedBy: objectUserId,
-              },
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${document.originalname}"`,
+    });
+
+    return res.send(document.signedPdf);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Download failed",
+      cause: error.message,
+    });
+  }
+};
+// GET COUNT OF DOCUMENT
+export const getDocumentStats = async (
+  req,
+  res
+) => {
+  try {
+    const userId = res.locals.jwtData.id;
+    const objectUserId = new mongoose.Types.ObjectId(userId);
+    const [totalDocuments, statusCounts] =
+      await Promise.all([
+        Document.countDocuments({
+          uploadedBy: userId,
+        }),
+
+        Document.aggregate([
+          {
+            $match: {
+              uploadedBy: objectUserId,
             },
-            {
-              $group: {
-                _id: "$status",
-                count: { $sum: 1 },
-              },
+          },
+          {
+            $group: {
+              _id: "$status",
+              count: { $sum: 1 },
             },
-          ]),
-        ]);
+          },
+        ]),
+      ]);
 
-      const stats = {
-        totalDocuments,
-        pending: 0,
-        signed: 0,
-      };
-      statusCounts.forEach((item) => {
-        stats[item._id.toLowerCase()] =
-          item.count;
-      });
+    const stats = {
+      totalDocuments,
+      pending: 0,
+      signed: 0,
+    };
+    statusCounts.forEach((item) => {
+      stats[item._id.toLowerCase()] =
+        item.count;
+    });
 
-      return res.status(200).json(stats);
-    } catch (error) {
-      return res.status(500).json({
-        message: error.message,
-      });
-    }
-  };
+    return res.status(200).json(stats);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};

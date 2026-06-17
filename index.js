@@ -5,6 +5,7 @@ import cors from "cors";
 import appRouter from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import { connectToDatabase } from "./db/connection.js";
+
 const app=express();
 app.use(
   cors({

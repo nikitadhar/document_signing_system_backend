@@ -27,6 +27,10 @@ const documentSchema = new mongoose.Schema({
     enum: ["Pending", "Signed"],
     default: "Pending"
   },
+  aiSummary: {
+    type: String,
+    default: "",
+  },
 
   createdAt: {
     type: Date,
